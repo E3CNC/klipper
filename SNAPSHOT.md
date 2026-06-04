@@ -30,7 +30,7 @@ This repo is a local fork of Klipper, intended to become a CNC-focused Klipper f
 ### Pending tasks (next session)
 
 1. ~~**Deploy WCS plugin via SSH**~~ — done. Plugin deployed, `[work_coordinate_systems]` in `printer.cfg`.
-2. ~~**Update `START_PRINT` macro**~~ — done. `WCS_STATUS` added; `ZERO_X/Y/Z/ALL` migrated to WCS-aware `G10 L20` calls; old `SET_KINEMATIC_POSITION` macros commented out as deprecated.
+2. ~~**Update `START_PRINT` macro**~~ — done. `WCS_STATUS` added; `ZERO_X/Y/Z/ALL` migrated to WCS-aware `G10 L20` calls; old `SET_KINEMATIC_POSITION` macros commented out as deprecated. `WCS_1`–`WCS_6` and `MACHINE_COORDS` dashboard selector macros added.
 3. **Set `position_min: 0`** on X (and verify Y/Z) — the old `-300 to +300` workaround is no longer needed now that WCS handles the offset correctly. User to do manually.
 4. **Test WCS workflow end-to-end** — home → select WCS → `ZERO_ALL` → switch G54/G55 → verify DRO in Mainsail. User to do manually.
 
