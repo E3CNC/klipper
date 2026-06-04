@@ -120,7 +120,9 @@ Config lives on the machine; key sections below. Ask the user to upload `printer
 - `[touch_probe]` configured on PC5
 - `homing_override`: homes Z first, then Y, then X, then loads the skew profile
 
-**macros.cfg**: `ZERO_X` / `ZERO_Y` / `ZERO_Z`, `ZERO_ALL`, `LOAD_OFFSETS`, `CHECK_OFFSET_XYZ`, `START_PRINT`, `END_PRINT` (skew clear removed — see Skew section), `M3` / `M5` spindle control, `SPINDLE_POWER_ON` / `SPINDLE_POWER_OFF`.
+**macros.cfg**: `START_PRINT` (calls `WCS_STATUS` first), `END_PRINT`, `PAUSE` / `RESUME` / `CANCEL_PRINT`, `M3` / `M5` spindle control, `SPINDLE_POWER_ON` / `SPINDLE_POWER_OFF`, `USE_POSITION_ABSOLUTE` / `USE_POSITION_RELATIVE`. Skew clear removed from `END_PRINT` — see Skew section.
+
+**wcs_macros.cfg** (new): `WCS_1`–`WCS_6` (select G54–G59), `MACHINE_COORDS` (G53), `ZERO_X` / `ZERO_Y` / `ZERO_Z` / `ZERO_ALL` (WCS-aware via `G10 L20 P{active_p}`). Pre-WCS `SET_KINEMATIC_POSITION` macros and `LOAD_OFFSETS` / `CHECK_OFFSET_XYZ` preserved as commented-out deprecated block.
 
 ---
 
