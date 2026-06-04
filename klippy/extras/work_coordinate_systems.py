@@ -9,8 +9,9 @@
 
 import os, json, logging
 
-WCS_NAMES = ['G54', 'G55', 'G56', 'G57', 'G58', 'G59']
-WCS_P_MAP  = {1: 'G54', 2: 'G55', 3: 'G56', 4: 'G57', 5: 'G58', 6: 'G59'}
+WCS_NAMES    = ['G54', 'G55', 'G56', 'G57', 'G58', 'G59']
+WCS_P_MAP    = {1: 'G54', 2: 'G55', 3: 'G56', 4: 'G57', 5: 'G58', 6: 'G59'}
+WCS_NAME_TO_P = {v: k for k, v in WCS_P_MAP.items()}
 
 
 class WorkCoordinateSystems:
@@ -198,7 +199,8 @@ class WorkCoordinateSystems:
 
     def get_status(self, eventtime=None):
         return {
-            'active_wcs':  self.active_wcs,
+            'active_wcs':   self.active_wcs,
+            'active_p':     WCS_NAME_TO_P[self.active_wcs],
             'machine_mode': self.machine_mode,
             'wcs': {name: list(v) for name, v in self.wcs.items()},
         }

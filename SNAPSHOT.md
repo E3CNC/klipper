@@ -19,7 +19,7 @@ This repo is a local fork of Klipper, intended to become a CNC-focused Klipper f
 | Plugin | File | Status |
 |--------|------|--------|
 | Touch probe (XY edge/center/bore finding) | `klippy/extras/touch_probe.py` | **v13 — complete, deployed on machine** |
-| Work Coordinate Systems (G54–G59) | `klippy/extras/work_coordinate_systems.py` | **v1 — complete, not yet deployed** |
+| Work Coordinate Systems (G54–G59) | `klippy/extras/work_coordinate_systems.py` | **v1 — complete, deployed on machine** |
 
 ### Plugins — planned
 
@@ -29,10 +29,10 @@ This repo is a local fork of Klipper, intended to become a CNC-focused Klipper f
 
 ### Pending tasks (next session)
 
-1. **Deploy WCS plugin via SSH** — copy `klippy/extras/work_coordinate_systems.py` to the laptop, add `[work_coordinate_systems]` to `printer.cfg`, restart Klipper.
-2. **Update `START_PRINT` macro** — user will share `macros.cfg`; add `WCS_STATUS` call so active WCS is visible in Mainsail before a job starts.
-3. **Set `position_min: 0`** on X (and verify Y/Z) — the old `-300 to +300` workaround is no longer needed now that WCS handles the offset correctly.
-4. **Test WCS workflow end-to-end** — home → probe part A → `G10 L20 P1 X0 Y0 Z0` → probe part B → `G10 L20 P2 X0 Y0 Z0` → switch between G54/G55 → verify coordinates.
+1. ~~**Deploy WCS plugin via SSH**~~ — done. Plugin deployed, `[work_coordinate_systems]` in `printer.cfg`.
+2. ~~**Update `START_PRINT` macro**~~ — done. `WCS_STATUS` added; `ZERO_X/Y/Z/ALL` migrated to WCS-aware `G10 L20` calls; old `SET_KINEMATIC_POSITION` macros commented out as deprecated.
+3. **Set `position_min: 0`** on X (and verify Y/Z) — the old `-300 to +300` workaround is no longer needed now that WCS handles the offset correctly. User to do manually.
+4. **Test WCS workflow end-to-end** — home → select WCS → `ZERO_ALL` → switch G54/G55 → verify DRO in Mainsail. User to do manually.
 
 ### CAM setup
 
