@@ -48,6 +48,8 @@ This is a **Klipper plugin** — a Python file that drops into Klipper's extras 
 
 Restart Klipper. Done.
 
+> **Heads up on `position_min`:** if you previously set a large negative `position_min` on any axis (a common workaround to give yourself room to zero mid-table), you no longer need it. WCS handles the offset properly — your axis limits can go back to `0`. Check your `stepper_x`, `stepper_y`, `stepper_z` sections in `printer.cfg`.
+
 ---
 
 ## Basic workflow
