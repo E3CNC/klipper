@@ -8,7 +8,7 @@
 # Changelog:
 #   1.1 (2026-06-05) — Homing restores active WCS instead of forcing G54;
 #                      Klipper restart still defaults to G54.
-#   1.0 (2026-05-xx) — Initial release. G54-G59, G53, G10 L2/L20, persistence.
+#   1.0 (2026-05-05) — Initial release. G54-G59, G53, G10 L2/L20, persistence.
 #
 # Config (printer.cfg):
 #   [work_coordinate_systems]
