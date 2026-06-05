@@ -4,8 +4,7 @@
 # Requires passwordless SSH key auth to be set up first (see .scratch/ssh-deploy/brief.md).
 set -euo pipefail
 
-HOST="${KLIPPER_HOST:-octoprint@192.168.0.100}"
-KEY="${KLIPPER_KEY:-$HOME/.ssh/id_ed25519_klipper}"
+HOST="${KLIPPER_HOST:-cnc-laptop}"
 REMOTE_EXTRAS="~/klipper/klippy/extras"
 
 # Add plugin files here as the E3CNC branch grows.
@@ -16,11 +15,11 @@ FILES=(
 echo "Deploying to $HOST..."
 for f in "${FILES[@]}"; do
   echo "  -> $f"
-  scp -i "$KEY" "$f" "$HOST:$REMOTE_EXTRAS/$(basename "$f")"
+  scp "$f" "$HOST:$REMOTE_EXTRAS/$(basename "$f")"
 done
 
 echo "Restarting Klipper..."
-ssh -i "$KEY" "$HOST" "sudo systemctl restart klipper"
+ssh "$HOST" "sudo systemctl restart klipper"
 
 echo ""
 echo "Done."
