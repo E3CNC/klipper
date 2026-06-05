@@ -1,7 +1,7 @@
 # ADR-0001: WCS resets to G54 after homing and Klipper connect
 
 ## Status
-Accepted
+Superseded by ADR-0004
 
 ## Context
 After a machine home (`G28`) or a Klipper reconnect, the WCS plugin must decide which coordinate system to activate. The alternatives are:

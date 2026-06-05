@@ -86,10 +86,12 @@ class WorkCoordinateSystems:
 
     def _handle_home_rails_end(self, homing_state, rails):
         # gcode_move fires first and resets base_position = homing_position.
-        # We fire second and return to G54 — homing is a deliberate re-reference,
-        # always land in a known state rather than silently inheriting the prior WCS.
+        # We fire second and re-apply the previously active WCS so the operator
+        # stays in their working coordinate system after a manual home.
+        # G54 is only the default on a fresh Klipper start (_handle_ready).
         self.machine_mode = False
-        self._apply_wcs('G54')
+        self._apply_wcs(self.active_wcs)
+        logging.info("WCS: home complete — restored %s", self.active_wcs)
 
     # ── Core ─────────────────────────────────────────────────────────────────
 
