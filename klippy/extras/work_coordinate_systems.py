@@ -3,11 +3,12 @@
 # G10 L2/L20 offset commands compatible with standard CAM output.
 # Offsets persist in a JSON file (default ~/wcs_offsets.json).
 #
-# Version: 1.1
+# Version: 1.2
 # Updated: 2026-06-05
 # Changelog:
-#   1.1 (2026-06-05) — Homing restores active WCS instead of forcing G54;
-#                      Klipper restart still defaults to G54.
+#   1.2 (2026-06-05) — active_wcs persisted to disk; Klipper restart now
+#                      restores the last active WCS instead of defaulting to G54.
+#   1.1 (2026-06-05) — Homing restores active WCS instead of forcing G54.
 #   1.0 (2026-05-05) — Initial release. G54-G59, G53, G10 L2/L20, persistence.
 #
 # Config (printer.cfg):
@@ -72,9 +73,13 @@ class WorkCoordinateSystems:
             if name in data.get('wcs', {}):
                 v = data['wcs'][name]
                 self.wcs[name] = [float(v[0]), float(v[1]), float(v[2])]
+        saved = data.get('active_wcs', 'G54')
+        if saved in WCS_NAMES:
+            self.active_wcs = saved
 
     def _persist(self):
         data = {
+            'active_wcs': self.active_wcs,
             'wcs': {name: list(self.wcs[name]) for name in WCS_NAMES},
         }
         try:
@@ -87,9 +92,10 @@ class WorkCoordinateSystems:
 
     def _handle_ready(self):
         self._load()
-        # Always start in G54 on Klipper connect — predictable clean state.
-        self._apply_wcs('G54')
-        logging.info("WCS: ready — starting in G54, loaded offsets=%s", self.wcs)
+        # Restore persisted active WCS so operator stays in their working system
+        # after a Klipper restart. Defaults to G54 if no persist file exists.
+        self._apply_wcs(self.active_wcs)
+        logging.info("WCS: ready — restored %s, offsets=%s", self.active_wcs, self.wcs)
 
     def _handle_home_rails_end(self, homing_state, rails):
         # gcode_move fires first and resets base_position = homing_position.

@@ -1,4 +1,4 @@
-# ADR-0004: Restore active WCS after homing; G54 only on Klipper start
+# ADR-0004: Restore active WCS after both homing and Klipper restart
 
 ## Status
 Accepted (supersedes ADR-0001)
@@ -6,33 +6,38 @@ Accepted (supersedes ADR-0001)
 ## Context
 ADR-0001 decided to always reset to G54 after both homing and Klipper connect.
 In practice this caused a usability footgun: operators working in G55 who home
-mid-session (tool change, tramming check, etc.) silently land in G54 and may
-start their next job in the wrong coordinate system.
+mid-session, or whose Klipper restarted due to a crash, silently land in G54
+and may start their next job in the wrong coordinate system.
 
-The original safety rationale — "after a crash-and-home you should be in a
-known state" — actually only applies to the Klipper restart event, not to a
-deliberate manual home.
+An intermediate version of this ADR (v1.1) split the two events — restoring
+WCS after home but still forcing G54 on Klipper restart. Community feedback
+confirmed that the restart case is equally problematic: operators expect to
+resume where they left off regardless of what caused the restart.
 
 ## Decision
-Split the two events:
+Both events restore the previously active WCS:
 
-- **`klippy:ready`** (Klipper start or restart after a crash): always activate
-  G54. This is the true "unknown state" event — the operator cannot know what
-  happened before the restart.
-- **`homing:home_rails_end`** (G28 during a running session): restore whichever
-  WCS was active before the home. G54 is still the result on a fresh start
-  because `klippy:ready` set it there first.
+- **`homing:home_rails_end`** (G28): re-applies `active_wcs` after homing resets
+  `base_position`.
+- **`klippy:ready`** (Klipper start/restart): loads `active_wcs` from the persist
+  file and applies it. Defaults to G54 only when no persist file exists yet
+  (first ever run).
+
+`active_wcs` is now written to `wcs_offsets.json` alongside the offset values
+so it survives restarts.
 
 ## Reasons
-- A manual home mid-session is not a crash. The operator knows which WCS they
-  are in and expects to continue working in it.
-- The crash-safety argument still holds for `klippy:ready` — a Klipper restart
-  always lands in G54 regardless of what was active before.
-- Community feedback confirmed the old behaviour caused missed-WCS crashes in
-  normal multi-setup workflows.
+- A Klipper restart mid-job (crash, power blip) should not change the operator's
+  working context — the offsets are already persisted, the active WCS should be too.
+- The original safety argument ("land in a known state after a crash") is better
+  served by the operator seeing their actual WCS than by silently switching to G54
+  and potentially running the next job in the wrong system.
+- G53 (machine coordinates) is available as an explicit safe-mode if the operator
+  wants to confirm position before resuming work.
 
 ## Consequences
-- Operators who home mid-session stay in their active WCS automatically.
-- After any Klipper restart, the active WCS is G54 — operators must re-select
-  explicitly if working in G55–G59.
-- `active_wcs` is still not persisted to disk; only offset values are saved.
+- Operators always resume in the WCS they were last using, regardless of what
+  triggered the restart or home.
+- `active_wcs` is persisted to disk — `wcs_offsets.json` now contains both
+  `active_wcs` and `wcs` keys.
+- First-ever run with no persist file defaults to G54.
