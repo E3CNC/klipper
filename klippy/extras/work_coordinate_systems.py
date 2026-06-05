@@ -3,6 +3,13 @@
 # G10 L2/L20 offset commands compatible with standard CAM output.
 # Offsets persist in a JSON file (default ~/wcs_offsets.json).
 #
+# Version: 1.1
+# Updated: 2026-06-05
+# Changelog:
+#   1.1 (2026-06-05) — Homing restores active WCS instead of forcing G54;
+#                      Klipper restart still defaults to G54.
+#   1.0 (2026-05-xx) — Initial release. G54-G59, G53, G10 L2/L20, persistence.
+#
 # Config (printer.cfg):
 #   [work_coordinate_systems]
 #   # persist_file: ~/wcs_offsets.json   # optional override
