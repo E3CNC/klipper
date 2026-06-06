@@ -39,3 +39,43 @@ The machine-space Z position recorded when the reference tool (the tool used for
 ## Soft Limits
 
 Klipper's kinematic travel bounds (`position_min` / `position_max`). Always checked in machine space. WCS does not expand or bypass them — a move that resolves to a machine-space position outside the bounds is rejected before any motion occurs.
+
+---
+
+## Motion Control States
+
+### Feed Hold
+
+A momentary motion suspension triggered by a dedicated physical hardware button wired directly to a MCU GPIO. The MCU halts step generation immediately via a hard stop (sub-5ms response). The spindle remains running. The machine stays at the Hold Position. Motion resumes immediately when the button is released. No jogging is permitted during feed hold. Not a persistent state — it exists only while the button is held.
+
+### Pause
+
+A persistent motion suspension triggered by the operator via the Mainsail UI. Uses the same MCU hard-stop mechanism as Feed Hold, but transitions into an operator-intervention state. After the hard stop: Z retracts to the configured Retract Height, spindle turns off. The operator may jog freely. Resume procedure: spindle on → wait Spindle Spin-up Dwell → move XY to Hold Position → lower Z to Hold Position Z → continue motion to Resume Target.
+
+### Stop
+
+A job cancellation triggered via the Mainsail UI. Uses the same MCU hard-stop mechanism. Spindle turns off. The G-code file position is reset and the job cannot be resumed. Machine returns to idle.
+
+### Emergency Stop
+
+Kills all MCU activity immediately (Klipper M112 / firmware shutdown). Used when physical safety is at risk. No recovery without a full Klipper restart and re-home. Triggered by a physical hardware button or the Mainsail emergency stop UI.
+
+### Motion Control Exclusion
+
+Homing, probing, and job execution are mutually exclusive — only one is ever active at a time. The Feed Hold button is armed only during job execution; it is silently ignored during homing and probing. Emergencies during homing or probing are handled by Emergency Stop, not Feed Hold. The spindle must never be running during homing or probing — it is a hard operational precondition, not a software-enforced constraint.
+
+### Hold Position
+
+The exact XYZ machine-space coordinates at the moment a Feed Hold or Pause completes. Derived from the MCU step count at the halt time via the trsync trigger mechanism. This is the position from which motion resumes (after any operator jogging is undone by the resume move sequence).
+
+### Resume Target
+
+The XYZ machine-space endpoint of the last move dispatched to the toolhead before a Feed Hold or Pause. Captured from `toolhead.commanded_pos` at the time of halt. On resume, the machine moves from the Hold Position to the Resume Target before continuing the G-code file. Covers all in-flight moves, not just the interrupted one.
+
+### Retract Height
+
+A configured Z machine-space coordinate that the machine moves to immediately after a Pause (before jogging is permitted). Must be high enough to clear all workholding and fixtures on the current setup. Configured as an absolute Z value; clamped to `position_max` at runtime if the configured value exceeds it. Defaults to `position_max` if not configured.
+
+### Spindle Spin-up Dwell
+
+A configurable wait time (seconds) inserted after spindle-on during the Pause resume sequence. The machine does not move during this dwell. Ensures the spindle reaches operating RPM before the tool re-engages the workpiece. Default: 5.0 seconds.
